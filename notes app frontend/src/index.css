@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+
+
+@theme {
+  --font-noteworthy: "Noteworthy", "Comic Sans MS", sans-serif;
+}
