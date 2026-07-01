@@ -7,6 +7,17 @@ const Home = () => {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
 
+  const colors = [
+    "#92DCE5",
+    "#FFBFA0",
+    "#D34F73",
+    "#B2EF9B",
+    "#DDD6FE",
+    "#ECFFB0",
+    "#FFD9DA",
+    "#838E83",
+  ];
+
   // FETCH NOTES
   const fetchNotes = async () => {
     try {
@@ -19,34 +30,37 @@ const Home = () => {
 
   // CREATE NOTE
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    formData.append("title", title);
-    formData.append("content", content);
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-    if (image) {
-      formData.append("image", image);
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("color", randomColor);
+
+      if (image) {
+        formData.append("image", image);
+      }
+
+      await API.post("/notes", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setTitle("");
+      setContent("");
+      setImage(null);
+
+      fetchNotes();
+    } catch (err) {
+      console.log(err.response?.data);
+      console.log(err.message);
     }
-
-    await API.post("/notes", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    setTitle("");
-    setContent("");
-    setImage(null);
-
-    fetchNotes();
-  } catch (err) {
-    console.log(err.response?.data);
-    console.log(err.message);
-  }
-};
+  };
 
   // DELETE NOTE
   const deleteNote = async (id) => {
@@ -72,7 +86,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#b0d390] flex flex-col items-center py-10 px-4">
+    <div className="min-h-screen bg-[#e9ece6] flex flex-col items-center py-10 px-4">
       {/* TITLE */}
       <h1 className="text-4xl font-serif font-bold text-gray-800 mb-8">
         📝 Notes
@@ -127,11 +141,15 @@ const Home = () => {
             {notes.map((note) => (
               <div
                 key={note._id}
-                className="bg-[#6984A9] p-5 rounded-2xl shadow-md hover:shadow-lg transition"
+                style={{ backgroundColor: note.color }}
+                className="p-5 rounded-2xl shadow-md hover:shadow-lg transition"
               >
-                <h3 className="text-sm font-bold text-gray-800">
-                  {note.title}
-                </h3>
+                {/* Title + Date/Time */}
+                <div className="flex justify-between items-start">
+                  <h3 className="text-sm font-bold text-gray-800">
+                    {note.title}
+                  </h3>
+                </div>
 
                 {note.image && (
                   <img
@@ -141,16 +159,32 @@ const Home = () => {
                   />
                 )}
 
-                <p className="text-white font-noteworthy mt-2">
+                <p className="text-black font-noteworthy mt-2">
                   {note.content}
                 </p>
 
-                <button
-                  onClick={() => deleteNote(note._id)}
-                  className="mt-4 bg-[#C44A3A] text-white px-4 py-1 rounded-lg hover:bg-red-600 transition"
-                >
-                  Delete
-                </button>
+                <div className="flex justify-between items-end mt-4">
+                  <button
+                    onClick={() => deleteNote(note._id)}
+                    className="bg-[#C44A3A] text-white px-4 py-1 rounded-lg hover:bg-red-600 transition"
+                  >
+                    Delete
+                  </button>
+
+                  <p className="text-[11px] text-gray-700 text-right leading-4">
+                    {new Date(note.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                    <br />
+                    {new Date(note.createdAt).toLocaleTimeString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
