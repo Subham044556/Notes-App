@@ -18,7 +18,7 @@ const Home = () => {
     "#838E83",
   ];
 
-  // FETCH NOTES
+  // FETCH NOTES thiafkan oiaoi gfyabfuaeiufga; ughaugfoa gief
   const fetchNotes = async () => {
     try {
       const res = await API.get("/notes");
