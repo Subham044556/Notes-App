@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
+import { Plus } from "lucide-react";
 
 const Home = () => {
   const [notes, setNotes] = useState([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
-
+  const [open, setOpen] = useState(false);
   const colors = [
     "#92DCE5",
     "#FFBFA0",
@@ -18,7 +19,7 @@ const Home = () => {
     "#838E83",
   ];
 
-  // FETCH NOTES thiafkan oiaoi gfyabfuaeiufga; ughaugfoa gief
+  // FETCH NOTES 
   const fetchNotes = async () => {
     try {
       const res = await API.get("/notes");
@@ -91,12 +92,35 @@ const Home = () => {
       <h1 className="text-4xl font-serif font-bold text-gray-800 mb-8">
         📝 Notes
       </h1>
-
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed top-6 left-6 bg-[#28396C] hover:bg-[#1d2d59] text-white p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 z-50"
+      >
+        <Plus size={28} />
+      </button>
       {/* FORM CARD */}
-      <div className="bg-[#EAE6BC] shadow-xl rounded-2xl p-6 w-full max-w-md mb-10">
-        <h2 className="text-xl font-mono font-semibold mb-4">Create a Note</h2>
+    {open && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="relative bg-[#EAE6BC] shadow-xl rounded-2xl p-6 w-full max-w-md">
+        {/* Close Button */}
+        <button
+          onClick={() => setOpen(false)}
+          className="absolute top-3 right-4 text-2xl font-bold text-gray-700 hover:text-red-500"
+        >
+          ×
+        </button>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <h2 className="text-xl font-mono font-semibold mb-4">
+          Create a Note
+        </h2>
+
+        <form
+          onSubmit={(e) => {
+            handleSubmit(e);
+            setOpen(false);
+          }}
+          className="flex flex-col gap-4"
+        >
           <input
             type="file"
             accept="image/*"
@@ -127,7 +151,8 @@ const Home = () => {
           </button>
         </form>
       </div>
-
+    </div>
+    )}
       {/* NOTES SECTION */}
       <div className="w-full max-w-4xl">
         <h2 className="text-2xl font-semibold mb-4 text-gray-700">
