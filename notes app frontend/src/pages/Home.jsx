@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import API from "../services/api";
 import { Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CircleUserRound, LogOut } from "lucide-react";
+
 
 const Home = () => {
   const [notes, setNotes] = useState([]);
@@ -28,6 +31,20 @@ const Home = () => {
       console.error(err);
     }
   };
+
+  const navigate = useNavigate();
+
+const [showProfile, setShowProfile] = useState(false);
+
+const user = JSON.parse(localStorage.getItem("user"));
+const logout = () => {
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    navigate("/login");
+
+};
 
   // CREATE NOTE
   const handleSubmit = async (e) => {
@@ -74,24 +91,68 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      try {
-        const res = await API.get("/notes");
-        setNotes(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        navigate("/login");
+        return;
+    }
 
     fetchNotes();
-  }, []);
+
+}, []);
 
   return (
     <div className="min-h-screen bg-[#e9ece6] flex flex-col items-center py-10 px-4">
       {/* TITLE */}
-      <h1 className="text-4xl font-serif font-bold text-gray-800 mb-8">
-        📝 Notes
-      </h1>
+      <div className="w-full max-w-5xl flex justify-between items-center mb-8">
+
+  <h1 className="text-4xl font-serif font-bold text-gray-800">
+    📝 Notes
+  </h1>
+
+  <div className="relative">
+
+    <CircleUserRound
+      size={40}
+      className="cursor-pointer hover:scale-110 transition"
+      onClick={() => setShowProfile(!showProfile)}
+    />
+
+    {showProfile && (
+
+      <div className="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-xl p-5 z-50">
+
+        <div className="flex justify-center mb-4">
+
+          <CircleUserRound size={60} />
+
+        </div>
+
+        <h2 className="text-center font-bold text-lg">
+          {user?.name}
+        </h2>
+
+        <p className="text-center text-gray-500">
+          {user?.email}
+        </p>
+
+        <button
+          onClick={logout}
+          className="mt-5 w-full flex justify-center items-center gap-2 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg transition"
+        >
+          <LogOut size={18} />
+          Logout
+        </button>
+
+      </div>
+
+    )}
+
+  </div>
+
+</div>
       <button
         onClick={() => setOpen(true)}
         className="fixed top-6 left-6 bg-[#28396C] hover:bg-[#1d2d59] text-white p-4 rounded-full shadow-xl transition-all duration-300 hover:scale-110 z-50"
